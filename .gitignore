@@ -27,3 +27,24 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+# Java build directories
+/build/
+/target/
+/out/
+/bin/
+
+# Compiled class files
+*.class
+
+# Logs
+*.log
+
+# Environment config
+.env
+
+# Backup and swap files
+*~
+*.swp
+*.swo
+*.bak

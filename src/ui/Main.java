@@ -4,6 +4,7 @@ import dao.BookDAO;
 import dao.UserDAO;
 import model.Book;
 import model.User;
+import dao.OrderDAO;
 
 import java.util.List;
 import java.util.Scanner;
@@ -17,20 +18,42 @@ public class Main {
         User loggedInUser = null;
 
         System.out.println("📚 Welcome to Online Book Store (Console Version)");
-        System.out.println("🔐 Please log in to continue:");
 
-        // 🔐 Login Loop
+        // 🔐 Pre-login menu: Register / Login
         while (loggedInUser == null) {
-            System.out.print("Username(email): ");
-            String username = scanner.nextLine();
+            System.out.println("\n🔑 1. Register");
+            System.out.println("🔐 2. Login");
+            System.out.println("❌ 3. Exit");
+            System.out.print("Choose an option: ");
+            int option = scanner.nextInt();
+            scanner.nextLine(); // consume newline
 
-            System.out.print("Password: ");
-            String password = scanner.nextLine();
+            switch (option) {
+                case 1:
+                    registerUserFlow(userDAO, scanner);
+                    break;
 
-            loggedInUser = userDAO.loginUser(username, password);
+                case 2:
+                    System.out.print("Username(email): ");
+                    String email = scanner.nextLine();
 
-            if (loggedInUser == null) {
-                System.out.println("❌ Invalid credentials. Please try again.");
+                    System.out.print("Password: ");
+                    String password = scanner.nextLine();
+
+                    loggedInUser = userDAO.loginUser(email, password);
+
+                    if (loggedInUser == null) {
+                        System.out.println("❌ Invalid credentials. Please try again.");
+                    }
+                    break;
+
+                case 3:
+                    System.out.println("👋 Exiting...");
+                    System.exit(0);
+                    break;
+
+                default:
+                    System.out.println("⚠️ Invalid option.");
             }
         }
 
@@ -98,6 +121,32 @@ public class Main {
                 default:
                     System.out.println("⚠️ Invalid choice. Try again.");
             }
+        }
+    }
+
+    // 🧑‍💻 Registration flow
+    private static void registerUserFlow(UserDAO userDAO, Scanner scanner) {
+        System.out.println("\n📝 Register New User:");
+
+        System.out.print("Full Name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Email: ");
+        String email = scanner.nextLine();
+
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+
+        System.out.print("Role (admin/viewer): ");
+        String role = scanner.nextLine();
+
+        User newUser = new User(name, email, password, role);
+        boolean isRegistered = userDAO.registerUser(newUser);
+
+        if (isRegistered) {
+            System.out.println("✅ Registration successful. You can now login.");
+        } else {
+            System.out.println("❌ Registration failed. Email might already be in use.");
         }
     }
 }

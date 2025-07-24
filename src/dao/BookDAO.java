@@ -55,4 +55,20 @@ public class BookDAO {
 
         return books;
     }
+
+    public boolean deleteBook(int bookId) {
+        String query = "DELETE FROM books WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, bookId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

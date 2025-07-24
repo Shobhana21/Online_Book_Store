@@ -14,6 +14,7 @@ public class Main {
     public static void main(String[] args) {
         BookDAO bookDAO = new BookDAO();
         UserDAO userDAO = new UserDAO();
+        OrderDAO orderDAO =new OrderDAO();
         Scanner scanner = new Scanner(System.in);
         User loggedInUser = null;
 
@@ -63,10 +64,15 @@ public class Main {
         while (true) {
             System.out.println("\n📋 Menu:");
             System.out.println("1. View All Books");
+
             if (loggedInUser.getRole().equalsIgnoreCase("admin")) {
                 System.out.println("2. Add Book");
+                System.out.println("3. Exit");
+            } else {
+                System.out.println("2. Place an Order");
+                System.out.println("3. Exit");
             }
-            System.out.println("3. Exit");
+
             System.out.print("Enter your choice: ");
             int choice = scanner.nextInt();
             scanner.nextLine(); // consume newline
@@ -85,33 +91,58 @@ public class Main {
                     break;
 
                 case 2:
-                    if (!loggedInUser.getRole().equalsIgnoreCase("admin")) {
-                        System.out.println("❌ Access denied. Only admin can add books.");
-                        break;
-                    }
+                    if (loggedInUser.getRole().equalsIgnoreCase("admin")) {
+                        // Admin Add Book Flow (unchanged)
+                        System.out.print("Enter book title: ");
+                        String title = scanner.nextLine();
 
-                    System.out.print("Enter book title: ");
-                    String title = scanner.nextLine();
+                        System.out.print("Enter author name: ");
+                        String author = scanner.nextLine();
 
-                    System.out.print("Enter author name: ");
-                    String author = scanner.nextLine();
+                        System.out.print("Enter price: ");
+                        double price = scanner.nextDouble();
 
-                    System.out.print("Enter price: ");
-                    double price = scanner.nextDouble();
+                        System.out.print("Enter quantity: ");
+                        int quantity = scanner.nextInt();
+                        scanner.nextLine(); // consume newline
 
-                    System.out.print("Enter quantity: ");
-                    int quantity = scanner.nextInt();
-                    scanner.nextLine(); // consume newline
+                        Book newBook = new Book(title, author, price, quantity);
+                        boolean isAdded = bookDAO.addBook(newBook);
 
-                    Book newBook = new Book(title, author, price, quantity);
-                    boolean isAdded = bookDAO.addBook(newBook);
-
-                    if (isAdded) {
-                        System.out.println("✅ Book added successfully!");
+                        if (isAdded) {
+                            System.out.println("✅ Book added successfully!");
+                        } else {
+                            System.out.println("❌ Failed to add book.");
+                        }
                     } else {
-                        System.out.println("❌ Failed to add book.");
+                        // Viewer Place Order Flow
+                        List<Book> availableBooks = bookDAO.getAllBooks();
+                        if (availableBooks.isEmpty()) {
+                            System.out.println("📭 No books available to order.");
+                            break;
+                        }
+
+                        System.out.println("\n📚 Available Books:");
+                        for (Book book : availableBooks) {
+                            System.out.println(book);
+                        }
+
+                        System.out.print("Enter the Book ID you want to order: ");
+                        int bookId = scanner.nextInt();
+
+                        System.out.print("Enter quantity: ");
+                        int qty = scanner.nextInt();
+                        scanner.nextLine(); // consume newline
+
+                        boolean success = orderDAO.placeOrder(loggedInUser.getId(), bookId, qty);
+                        if (success) {
+                            System.out.println("✅ Order placed successfully!");
+                        } else {
+                            System.out.println("❌ Failed to place order. Check quantity or Book ID.");
+                        }
                     }
                     break;
+
 
                 case 3:
                     System.out.println("👋 Exiting...");
